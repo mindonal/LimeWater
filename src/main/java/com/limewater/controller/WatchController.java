@@ -27,7 +27,7 @@ public class WatchController {
     }
 
     @RequestMapping(value = "/domcheck/{itemCode}", method = RequestMethod.GET)
-    public String domcheck(@PathVariable String itemCode) throws IOException
+    public Item domcheck(@PathVariable String itemCode) throws IOException
     {
         return watchService.getHtml(itemCode);
     }

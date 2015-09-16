@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module external.linked.project.id="LimeWater" external.linked.project.path="$MODULE_DIR$" external.root.project.path="$MODULE_DIR$" external.system.id="GRADLE" external.system.module.group="" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
   <component name="FacetManager">
+    <facet type="Spring" name="Spring">
+      <configuration>
+        <fileset id="fileset" name="Spring Application Context" removed="false">
+          <file>file://$MODULE_DIR$/src/main/java/com/limewater/LimeWaterApplication.java</file>
+        </fileset>
+      </configuration>
+    </facet>
     <facet type="web" name="Web Gradle : LimeWater-0.0.1-SNAPSHOT.war">
       <configuration>
         <webroots>
@@ -91,5 +98,6 @@
     <orderEntry type="library" name="Gradle: org.slf4j:log4j-over-slf4j:1.7.12" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: com.h2database:h2:1.4.188" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: mysql:mysql-connector-java:5.1.36" level="project" />
+    <orderEntry type="library" name="Gradle: org.jsoup:jsoup:1.8.3" level="project" />
   </component>
 </module>

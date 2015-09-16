@@ -1,0 +1,7 @@
+spring:
+  jpa:
+    show_sql: true
+    hibernate:
+      naming_strategy: org.hibernate.cfg.EJB3NamingStrategy
+      ddl_auto: create-drop
+
