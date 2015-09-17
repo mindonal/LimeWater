@@ -27,7 +27,11 @@ public class WatchService {
      * - 공식 홈페이지 검색
      * - 상세페이지 접근 가격, 이미지, 상품명 저장
      * 2. 해당제품의 stock status 를 조회한다
-     *
+     * - toysrus.lottemart.com
+     * a. 먼저 사이트에서 검색 URL
+     * b. detail page를 알아낸다 쇼핑몰 고유의 PRD CD
+     * c. detail page 정보 저장
+     * <p>
      * 3. 저장된 DB의 리스트를 조회
      **/
 
@@ -36,6 +40,72 @@ public class WatchService {
 
     @Autowired
     ImageRepository imageRepository;
+
+    @Cacheable
+    public List<Item> getItemList() {
+        return itemRepository.findAll();
+    }
+
+    public Item watchItem(int itemCode) {
+
+        Item watchItem = new Item();
+        // 먼저 있는지 check
+        if (getItemList().size() > 0) {
+            watchItem = getItemList().stream().
+                    filter(i -> i.getItemCode() == itemCode).findAny().get();
+        }
+
+        System.out.println("watchItem = " + watchItem);
+        
+        // 없으면 저장, 조사
+        if (watchItem != null && watchItem.getItemCode() == 0) {
+            watchItem = crawlItemInfo(itemCode);
+        }
+        return watchItem;
+    }
+
+    private Item crawlItemInfo(int itemCode) {
+        Item parsedItem = new Item();
+        try {
+            System.out.println("itemCode >>>> " + itemCode);
+            //Document listDoc = Jsoup.connect("http://search-ko.lego.com/?q="+itemCode+"&cc=KR#").get();
+            Document listDoc = Jsoup.connect("http://search-en.lego.com/?q=" + itemCode + "&cc=US#").get();
+
+            //item-code
+            Elements searchedItemCode = listDoc.select("#product-results .item-code ");
+
+            System.out.println("searchedItemCode.html() = " + searchedItemCode.html());
+
+            parsedItem.setItemCode(Integer.parseInt(searchedItemCode.html().toString()));
+
+            //item-name-en
+            Elements searchedItemName = listDoc.select("#product-results h4 > a ");
+            System.out.println("searchedItemName = " + searchedItemName);
+            //item-detail-url
+            parsedItem.setItemName(searchedItemName.attr("title").toString());
+            parsedItem.setItemUrl(searchedItemName.attr("href").toString());
+
+            itemRepository.save(parsedItem);
+
+            //item-image-url
+            Image itemMainImage = new Image();
+            itemMainImage.setImageUrl("http://cache.lego.com/e/dynamic/is/image/LEGO/" + itemCode + "?$main$");
+            itemMainImage.setItem(parsedItem);
+            imageRepository.saveAndFlush(itemMainImage);
+
+            List<Image> images = new ArrayList<Image>();
+            images.add(itemMainImage);
+            parsedItem.setImages(images);
+            itemRepository.saveAndFlush(parsedItem);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return parsedItem;
+    }
+
+    /**************************************************/
+
 
     public Item getItem(String itemCode) {
         return checkItemExist(itemCode);
@@ -69,11 +139,6 @@ public class WatchService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Cacheable
-    private List<Item> getItemList() {
-        return itemRepository.findAll();
     }
 
 
@@ -121,4 +186,6 @@ public class WatchService {
 
         return parsedItem;
     }
+
+
 }

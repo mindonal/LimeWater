@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by mindonal@gmail.com on 9/14/15.
@@ -20,10 +21,17 @@ public class WatchController {
     @Autowired
     WatchService watchService;
 
-    @RequestMapping(value = "/watch/{itemCode}", method = RequestMethod.GET)
-    public Item watch(@PathVariable String itemCode) throws IOException
+
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public List<Item> getItemAllList() throws IOException
     {
-        return watchService.getItem(itemCode);
+        return watchService.getItemList();
+    }
+
+    @RequestMapping(value = "/{itemCode}", method = RequestMethod.GET)
+    public Item watchItem(@PathVariable int itemCode) throws IOException
+    {
+        return watchService.watchItem(itemCode);
     }
 
     @RequestMapping(value = "/domcheck/{itemCode}", method = RequestMethod.GET)
