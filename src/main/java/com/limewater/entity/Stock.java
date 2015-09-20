@@ -25,7 +25,7 @@ public class Stock {
     @Enumerated(EnumType.STRING)
     private Currency currency;
 
-    private long price;
+    private String price;
 
     private Boolean inStock;
 
@@ -40,11 +40,6 @@ public class Stock {
     @PrePersist
     void createdAt() {
         createdDate = LocalDateTime.now();
-    }
-
-    public enum Currency {
-        krw,
-        usd
     }
 
     @Override
@@ -85,11 +80,11 @@ public class Stock {
         this.currency = currency;
     }
 
-    public long getPrice() {
+    public String getPrice() {
         return price;
     }
 
-    public void setPrice(long price) {
+    public void setPrice(String price) {
         this.price = price;
     }
 
@@ -123,5 +118,10 @@ public class Stock {
 
     public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public enum Currency {
+        krw,
+        usd
     }
 }

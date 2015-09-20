@@ -2,6 +2,7 @@ package com.limewater.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -22,26 +23,34 @@ public class Product {
     @JoinColumn(name = "ITEM_CODE")
     private Item item;
 
+    private Seller seller;
+
     @Column(name = "PRD_URL")
     private String prdUrl;
 
     @CreatedDate
     @Column(name = "CREATED_DATE", updatable = false)
     private LocalDateTime createdDate;
+    @LastModifiedBy
+    @Column(name = "LAST_MODIFIED_DATE", updatable = false)
+    private LocalDateTime lastModifiedDate;
 
     @PrePersist
     void createdAt() {
         createdDate = LocalDateTime.now();
     }
 
-    @Override
-    public String toString() {
-        return "Product{" +
-                "prdId=" + prdId +
-                ", item=" + item +
-                ", prdUrl='" + prdUrl + '\'' +
-                ", createdDate=" + createdDate +
-                '}';
+    @PreUpdate
+    void updatedAt() {
+        lastModifiedDate = LocalDateTime.now();
+    }
+
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
     }
 
     public int getPrdId() {
@@ -60,6 +69,14 @@ public class Product {
         this.item = item;
     }
 
+    public Seller getSeller() {
+        return seller;
+    }
+
+    public void setSeller(Seller seller) {
+        this.seller = seller;
+    }
+
     public String getPrdUrl() {
         return prdUrl;
     }
@@ -68,11 +85,14 @@ public class Product {
         this.prdUrl = prdUrl;
     }
 
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
+    @Override
+    public String toString() {
+        return "Product{" +
+                "prdId=" + prdId +
+                ", item=" + item +
+                ", prdUrl='" + prdUrl + '\'' +
+                ", createdDate=" + createdDate +
+                '}';
     }
 
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
 }

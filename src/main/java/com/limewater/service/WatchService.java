@@ -41,6 +41,9 @@ public class WatchService {
     @Autowired
     ImageRepository imageRepository;
 
+    @Autowired
+    RakeService rakeService;
+
     @Cacheable
     public List<Item> getItemList() {
         return itemRepository.findAll();
@@ -59,49 +62,9 @@ public class WatchService {
         
         // 없으면 저장, 조사
         if (watchItem != null && watchItem.getItemCode() == 0) {
-            watchItem = crawlItemInfo(itemCode);
+            watchItem = rakeService.getItemInfo(itemCode);
         }
         return watchItem;
-    }
-
-    private Item crawlItemInfo(int itemCode) {
-        Item parsedItem = new Item();
-        try {
-            System.out.println("itemCode >>>> " + itemCode);
-            //Document listDoc = Jsoup.connect("http://search-ko.lego.com/?q="+itemCode+"&cc=KR#").get();
-            Document listDoc = Jsoup.connect("http://search-en.lego.com/?q=" + itemCode + "&cc=US#").get();
-
-            //item-code
-            Elements searchedItemCode = listDoc.select("#product-results .item-code ");
-
-            System.out.println("searchedItemCode.html() = " + searchedItemCode.html());
-
-            parsedItem.setItemCode(Integer.parseInt(searchedItemCode.html().toString()));
-
-            //item-name-en
-            Elements searchedItemName = listDoc.select("#product-results h4 > a ");
-            System.out.println("searchedItemName = " + searchedItemName);
-            //item-detail-url
-            parsedItem.setItemName(searchedItemName.attr("title").toString());
-            parsedItem.setItemUrl(searchedItemName.attr("href").toString());
-
-            itemRepository.save(parsedItem);
-
-            //item-image-url
-            Image itemMainImage = new Image();
-            itemMainImage.setImageUrl("http://cache.lego.com/e/dynamic/is/image/LEGO/" + itemCode + "?$main$");
-            itemMainImage.setItem(parsedItem);
-            imageRepository.saveAndFlush(itemMainImage);
-
-            List<Image> images = new ArrayList<Image>();
-            images.add(itemMainImage);
-            parsedItem.setImages(images);
-            itemRepository.saveAndFlush(parsedItem);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return parsedItem;
     }
 
     /**************************************************/

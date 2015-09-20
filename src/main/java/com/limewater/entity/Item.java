@@ -1,6 +1,7 @@
 package com.limewater.entity;
 
-import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -30,16 +31,25 @@ public class Item {
     @OneToMany(mappedBy = "item")
     private List<Image> images = new ArrayList<Image>();
 
-    @CreatedDate
+    @OneToMany(mappedBy = "item")
+    private List<Product> products = new ArrayList<Product>();
+
+    @CreatedBy
     @Column(name = "CREATED_DATE", updatable = false)
     private LocalDateTime createdDate;
-
+    @LastModifiedBy
+    @Column(name = "LAST_MODIFIED_DATE", updatable = false)
+    private LocalDateTime lastModifiedDate;
 
     @PrePersist
     void createdAt() {
         createdDate = LocalDateTime.now();
     }
 
+    @PreUpdate
+    void updatedAt() {
+        lastModifiedDate = LocalDateTime.now();
+    }
 
     public int getItemId() {
         return itemId;
