@@ -6,6 +6,8 @@ import org.springframework.data.annotation.LastModifiedBy;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by mindonal@gmail.com on 9/16/15.
@@ -27,6 +29,9 @@ public class Product {
 
     @Column(name = "PRD_URL")
     private String prdUrl;
+
+    @OneToMany(mappedBy = "product")
+    private List<Stock> stocks = new ArrayList<Stock>();
 
     @CreatedDate
     @Column(name = "CREATED_DATE", updatable = false)
@@ -85,14 +90,19 @@ public class Product {
         this.prdUrl = prdUrl;
     }
 
-    @Override
-    public String toString() {
-        return "Product{" +
-                "prdId=" + prdId +
-                ", item=" + item +
-                ", prdUrl='" + prdUrl + '\'' +
-                ", createdDate=" + createdDate +
-                '}';
+    public List<Stock> getStocks() {
+        return stocks;
     }
 
+    public void setStocks(List<Stock> stocks) {
+        this.stocks = stocks;
+    }
+
+    public LocalDateTime getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
 }

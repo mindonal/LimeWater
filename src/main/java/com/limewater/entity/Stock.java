@@ -42,20 +42,6 @@ public class Stock {
         createdDate = LocalDateTime.now();
     }
 
-    @Override
-    public String toString() {
-        return "Stock{" +
-                "stockId=" + stockId +
-                ", product=" + product +
-                ", currency=" + currency +
-                ", price=" + price +
-                ", inStock=" + inStock +
-                ", avaiable=" + avaiable +
-                ", total=" + total +
-                ", createdDate=" + createdDate +
-                '}';
-    }
-
     public int getStockId() {
         return stockId;
     }

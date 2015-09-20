@@ -91,6 +91,14 @@ public class Item {
         this.images = images;
     }
 
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<Product> products) {
+        this.products = products;
+    }
+
     public LocalDateTime getCreatedDate() {
         return createdDate;
     }
@@ -99,15 +107,26 @@ public class Item {
         this.createdDate = createdDate;
     }
 
+    public LocalDateTime getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
 
     @Override
     public String toString() {
         return "Item{" +
                 "itemId=" + itemId +
                 ", itemCode=" + itemCode +
-                ", itemName=" + itemName +
+                ", itemName='" + itemName + '\'' +
+                ", itemUrl='" + itemUrl + '\'' +
                 ", images=" + images +
+                ", products=" + products +
                 ", createdDate=" + createdDate +
+                ", lastModifiedDate=" + lastModifiedDate +
                 '}';
     }
+
 }

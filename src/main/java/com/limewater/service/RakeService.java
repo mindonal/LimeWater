@@ -69,8 +69,10 @@ public class RakeService {
             Product product = new Product();
 
             product.setPrdUrl("http://toysrus.lottemart.com/product/ProductDetail.do?ProductCD=" + prdCode);
-
+            System.out.println("\n>>>product.getPrdUrl() = " + product.getPrdUrl());
             Document prdDoc = Jsoup.connect(product.getPrdUrl()).get();
+
+            System.out.println("prdDoc.toString() = " + prdDoc.toString());
 
             product.setItem(item);
             product.setSeller(Seller.TOYSRUS_KR);
@@ -78,7 +80,10 @@ public class RakeService {
             Stock stock = new Stock();
             stock.setProduct(product);
             stock.setCurrency(Stock.Currency.krw);
-            stock.setPrice(listDoc.select("#ItemCurrSalePrc ").html().toString());
+
+            System.out.println("\n\n>>>>>stock = " + prdDoc.select("#ItemCurrSalePrc ").html());
+
+            stock.setPrice(prdDoc.select("#ItemCurrSalePrc ").html());
 
             productRepository.saveAndFlush(product);
             stockRepository.saveAndFlush(stock);
@@ -136,6 +141,8 @@ public class RakeService {
 
         //해당 item stock정보 조사
         getProductInfo(parsedItem);
+
+        System.out.println("parsedItem.toString() = " + parsedItem.toString());
 
         return parsedItem;
     }
