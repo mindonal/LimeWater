@@ -8,7 +8,7 @@ import javax.persistence.*;
  * Created by mindonal@gmail.com on 9/14/15.
  */
 @Entity
-public class Image {
+public class Image extends BaseEntity {
 
     @Id
     @Column(name = "IMAGE_ID")

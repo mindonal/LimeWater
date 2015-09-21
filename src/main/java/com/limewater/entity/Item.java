@@ -1,10 +1,6 @@
 package com.limewater.entity;
 
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.LastModifiedBy;
-
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +8,7 @@ import java.util.List;
  * Created by mindonal@gmail.com on 9/14/15.
  */
 @Entity
-public class Item {
+public class Item extends BaseEntity {
 
     @Id
     @Column(name = "ITEM_ID")
@@ -34,22 +30,6 @@ public class Item {
     @OneToMany(mappedBy = "item")
     private List<Product> products = new ArrayList<Product>();
 
-    @CreatedBy
-    @Column(name = "CREATED_DATE", updatable = false)
-    private LocalDateTime createdDate;
-    @LastModifiedBy
-    @Column(name = "LAST_MODIFIED_DATE", updatable = false)
-    private LocalDateTime lastModifiedDate;
-
-    @PrePersist
-    void createdAt() {
-        createdDate = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    void updatedAt() {
-        lastModifiedDate = LocalDateTime.now();
-    }
 
     public int getItemId() {
         return itemId;
@@ -99,21 +79,6 @@ public class Item {
         this.products = products;
     }
 
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public LocalDateTime getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
 
     @Override
     public String toString() {
@@ -124,8 +89,6 @@ public class Item {
                 ", itemUrl='" + itemUrl + '\'' +
                 ", images=" + images +
                 ", products=" + products +
-                ", createdDate=" + createdDate +
-                ", lastModifiedDate=" + lastModifiedDate +
                 '}';
     }
 

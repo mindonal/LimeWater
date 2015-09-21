@@ -1,16 +1,14 @@
 package com.limewater.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 /**
  * Created by mindonal@gmail.com on 9/14/15.
  */
 @Entity
-public class Stock {
+public class Stock extends BaseEntity {
 
     @Id
     @Column(name = "STOCK_ID")
@@ -33,14 +31,6 @@ public class Stock {
 
     private int total;
 
-    @CreatedDate
-    @Column(name = "CREATED_DATE", updatable = false)
-    private LocalDateTime createdDate;
-
-    @PrePersist
-    void createdAt() {
-        createdDate = LocalDateTime.now();
-    }
 
     public int getStockId() {
         return stockId;
@@ -96,14 +86,6 @@ public class Stock {
 
     public void setTotal(int total) {
         this.total = total;
-    }
-
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
     }
 
     public enum Currency {

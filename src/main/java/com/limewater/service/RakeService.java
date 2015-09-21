@@ -72,7 +72,20 @@ public class RakeService {
             System.out.println("\n>>>product.getPrdUrl() = " + product.getPrdUrl());
             Document prdDoc = Jsoup.connect(product.getPrdUrl()).get();
 
-            System.out.println("prdDoc.toString() = " + prdDoc.toString());
+            //System.out.println("prdDoc.toString() = " + prdDoc.toString());
+
+            String priceRegex = "itemsCurrSalePrc\\s{0,9}=\\s{0,9}'\\d{1,3},\\d{1,3}'";
+            pattern = pattern.compile(priceRegex);
+            matcher = pattern.matcher(prdDoc.toString());
+
+            String stockPrice = "1,000";
+            if (matcher.find()) {
+                stockPrice = matcher.group().replaceAll("itemsCurrSalePrc", "")
+                        .replaceAll("'", "")
+                        .replaceAll("=", "").trim();
+
+                System.out.println("stockPrice = " + stockPrice);
+            }
 
             product.setItem(item);
             product.setSeller(Seller.TOYSRUS_KR);
@@ -80,10 +93,7 @@ public class RakeService {
             Stock stock = new Stock();
             stock.setProduct(product);
             stock.setCurrency(Stock.Currency.krw);
-
-            System.out.println("\n\n>>>>>stock = " + prdDoc.select("#ItemCurrSalePrc ").html());
-
-            stock.setPrice(prdDoc.select("#ItemCurrSalePrc ").html());
+            stock.setPrice(stockPrice);
 
             productRepository.saveAndFlush(product);
             stockRepository.saveAndFlush(stock);
