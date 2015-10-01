@@ -5,3 +5,4 @@ spring:
       naming_strategy: org.hibernate.cfg.EJB3NamingStrategy
       ddl_auto: create-drop
 
+db.username: 123123123

@@ -8,6 +8,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,8 @@ public class WatchService {
 
     @Autowired
     RakeService rakeService;
+    @Value("${db.username}")
+    private String dbname;
 
     @Cacheable
     public List<Item> getItemList() {
@@ -50,6 +53,12 @@ public class WatchService {
     }
 
     public Item watchItem(int itemCode) {
+
+
+        System.out.println(dbname);
+        System.out.println(dbname);
+        System.out.println(dbname);
+        System.out.println(dbname);
 
         Item watchItem = new Item();
         // 먼저 있는지 check
@@ -64,6 +73,8 @@ public class WatchService {
         if (watchItem != null && watchItem.getItemCode() == 0) {
             watchItem = rakeService.getItemInfo(itemCode);
         }
+
+
         return watchItem;
     }
 

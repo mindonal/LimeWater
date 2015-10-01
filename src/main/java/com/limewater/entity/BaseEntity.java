@@ -22,7 +22,7 @@ public abstract class BaseEntity implements Serializable {
 
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_date", updatable = false) //한번 생성된 날짜는 수정하지 않는다.
+    @Column(name = "created_date", updatable = false)
     private Date createdDate;
 
     @LastModifiedDate
