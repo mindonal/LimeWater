@@ -8,7 +8,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by mindonal@gmail.com on 9/14/15.
@@ -44,8 +44,6 @@ public class WatchService {
 
     @Autowired
     RakeService rakeService;
-    @Value("${db.username}")
-    private String dbname;
 
     @Cacheable
     public List<Item> getItemList() {
@@ -55,20 +53,18 @@ public class WatchService {
     public Item watchItem(int itemCode) {
 
 
-        System.out.println(dbname);
-        System.out.println(dbname);
-        System.out.println(dbname);
-        System.out.println(dbname);
-
         Item watchItem = new Item();
         // 먼저 있는지 check
         if (getItemList().size() > 0) {
-            watchItem = getItemList().stream().
-                    filter(i -> i.getItemCode() == itemCode).findAny().get();
+            watchItem = getItemList().stream()
+                    .filter(i -> i.getItemCode() == itemCode)
+                    .filter(Objects::nonNull)
+                    .findAny()
+                    .get();
         }
 
         System.out.println("watchItem = " + watchItem);
-        
+
         // 없으면 저장, 조사
         if (watchItem != null && watchItem.getItemCode() == 0) {
             watchItem = rakeService.getItemInfo(itemCode);
