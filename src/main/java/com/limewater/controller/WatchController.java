@@ -29,7 +29,7 @@ public class WatchController {
     }
 
     @RequestMapping(value = "/{itemCode}", method = RequestMethod.GET)
-    public Item watchItem(@PathVariable int itemCode) throws IOException
+    public Item watchItem(@PathVariable String itemCode) throws IOException
     {
         return watchService.watchItem(itemCode);
     }

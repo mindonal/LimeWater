@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Created by mindonal@gmail.com on 9/14/15.
@@ -50,23 +49,22 @@ public class WatchService {
         return itemRepository.findAll();
     }
 
-    public Item watchItem(int itemCode) {
+    public Item watchItem(String itemCode) {
 
 
-        Item watchItem = new Item();
+        Item watchItem = itemRepository.findOneByItemCode(itemCode);
         // 먼저 있는지 check
-        if (getItemList().size() > 0) {
-            watchItem = getItemList().stream()
-                    .filter(i -> i.getItemCode() == itemCode)
-                    .filter(Objects::nonNull)
-                    .findAny()
-                    .get();
-        }
+//        if (getItemList().size() > 0) {
+//            watchItem = getItemList().stream()
+//                    .filter(i -> i.getItemCode() == itemCode)
+//                    .filter(Objects::nonNull)
+//                    .findAny()
+//                    .get();
+//        }
 
-        System.out.println("watchItem = " + watchItem);
 
         // 없으면 저장, 조사
-        if (watchItem != null && watchItem.getItemCode() == 0) {
+        if (watchItem == null || watchItem.getItemCode().isEmpty()) {
             watchItem = rakeService.getItemInfo(itemCode);
         }
 
@@ -83,13 +81,12 @@ public class WatchService {
 
     private Item checkItemExist(String itemCode) {
 
-        Item checkItem = getItemList().stream().
-                filter(i -> i.getItemCode() == Integer.parseInt(itemCode)).findAny().get();
+        Item checkItem = itemRepository.findOneByItemCode(itemCode);
 
         //Optional<Item> i = getItemList().stream().filter(x -> x.getItemCode() == Integer.parseInt(itemCode)).findAny().orElse();
 
         if (checkItem != null) {
-            checkItem = itemRepository.findOne(Long.parseLong(itemCode));
+            checkItem = itemRepository.findOneByItemCode(itemCode);
         } else {
             parseAndInsertItem(itemCode);
 
@@ -125,7 +122,7 @@ public class WatchService {
 
             System.out.println("searchedItemCode.html() = " + searchedItemCode.html());
 
-            parsedItem.setItemCode(Integer.parseInt(searchedItemCode.html().toString()));
+            parsedItem.setItemCode(searchedItemCode.html().toString());
 
             //item-name-en
             Elements searchedItemName = listDoc.select("#product-results h4 > a ");
@@ -140,12 +137,12 @@ public class WatchService {
             Image itemMainImage = new Image();
             itemMainImage.setImageUrl("http://cache.lego.com/e/dynamic/is/image/LEGO/" + itemCode + "?$main$");
             itemMainImage.setItem(parsedItem);
-            imageRepository.saveAndFlush(itemMainImage);
+            imageRepository.save(itemMainImage);
 
             List<Image> images = new ArrayList<Image>();
             images.add(itemMainImage);
             parsedItem.setImage(images);
-            itemRepository.saveAndFlush(parsedItem);
+            itemRepository.save(parsedItem);
 
             result = searchedItemCode.toString();
 

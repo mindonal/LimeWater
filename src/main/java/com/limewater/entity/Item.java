@@ -12,12 +12,11 @@ public class Item extends BaseEntity {
     @Id
     @Column(name = "ITEM_ID")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int itemId;
+    private Integer itemId;
 
     @Column(name = "ITEM_CODE", unique = true)
-    private int itemCode;
+    private String itemCode;
 
-    @Column(name = "ITEM_NAME")
     private String itemName;
 
     @Column(name = "ITEM_URL")
@@ -29,19 +28,19 @@ public class Item extends BaseEntity {
     @OneToMany(mappedBy = "item")
     private List<Product> products;
 
-    public int getItemId() {
+    public Integer getItemId() {
         return itemId;
     }
 
-    public void setItemId(int itemId) {
+    public void setItemId(Integer itemId) {
         this.itemId = itemId;
     }
 
-    public int getItemCode() {
+    public String getItemCode() {
         return itemCode;
     }
 
-    public void setItemCode(int itemCode) {
+    public void setItemCode(String itemCode) {
         this.itemCode = itemCode;
     }
 
