@@ -14,10 +14,10 @@ public class Product extends BaseEntity {
 
     @Id
     @Column(name = "PRD_ID")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int prdId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
     @JoinColumn(name = "ITEM_CODE")
     private Item item;

@@ -144,9 +144,8 @@ public class WatchService {
 
             List<Image> images = new ArrayList<Image>();
             images.add(itemMainImage);
-            parsedItem.setImages(images);
+            parsedItem.setImage(images);
             itemRepository.saveAndFlush(parsedItem);
-
 
             result = searchedItemCode.toString();
 

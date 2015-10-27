@@ -1,7 +1,19 @@
 spring:
-  jpa:
-    show_sql: true
-    hibernate:
-      naming_strategy: org.hibernate.cfg.EJB3NamingStrategy
-      ddl_auto: create-drop
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/limewater
+    username: root
+    password:
 
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+      naming_strategy: org.hibernate.cfg.EJB3NamingStrategy
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5Dialect
+        hbm2ddl:
+          auto: create-drop
+        temp:
+          use_jdbc_metadata_defaults: false

@@ -93,7 +93,7 @@ public class RakeService {
 
             Stock stock = new Stock();
             stock.setProduct(product);
-            stock.setCurrency(Stock.Currency.krw);
+            stock.setCurrency(Stock.Currency.KRW);
             stock.setPrice(stockPrice);
 
             productRepository.saveAndFlush(product);
@@ -215,11 +215,14 @@ public class RakeService {
             Image itemMainImage = new Image();
             itemMainImage.setImageUrl("http://cache.lego.com/e/dynamic/is/image/LEGO/" + itemCode + "?$main$");
             itemMainImage.setItem(parsedItem);
-            imageRepository.saveAndFlush(itemMainImage);
 
-            List<Image> images = new ArrayList<Image>();
-            images.add(itemMainImage);
-            parsedItem.setImages(images);
+            System.out.println("itemMainImage.toString() = " + itemMainImage.toString());
+
+            imageRepository.save(itemMainImage);
+
+            List<Image> imagelist = new ArrayList<Image>();
+            imagelist.add(itemMainImage);
+            parsedItem.setImage(imagelist);
             itemRepository.saveAndFlush(parsedItem);
 
         } catch (IOException e) {

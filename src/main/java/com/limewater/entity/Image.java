@@ -17,14 +17,14 @@ public class Image extends BaseEntity {
 
     @ManyToOne
     @JsonBackReference
-    @JoinColumn(name = "ITEM_CODE")
+    @JoinColumn(name = "ITEM_ID")
     private Item item;
 
-    @Column(name = "IMAGE_URL", nullable = false)
+    @Column(name = "IMAGE_URL")
     private String imageUrl;
 
-    private String desc;
-
+    @Column(name = "IMAGE_DESC")
+    private String imageDesc;
 
     public int getImageId() {
         return imageId;
@@ -50,12 +50,13 @@ public class Image extends BaseEntity {
         this.imageUrl = imageUrl;
     }
 
-    public String getDesc() {
-        return desc;
+    public String getImageDesc() {
+        return imageDesc;
     }
 
-    public void setDesc(String desc) {
-        this.desc = desc;
+    public void setImageDesc(String imageDesc) {
+        this.imageDesc = imageDesc;
     }
+
 
 }

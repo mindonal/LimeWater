@@ -1,7 +1,6 @@
 package com.limewater.entity;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,11 +24,10 @@ public class Item extends BaseEntity {
     private String itemUrl;
 
     @OneToMany(mappedBy = "item")
-    private List<Image> images = new ArrayList<Image>();
+    private List<Image> image;
 
     @OneToMany(mappedBy = "item")
-    private List<Product> products = new ArrayList<Product>();
-
+    private List<Product> products;
 
     public int getItemId() {
         return itemId;
@@ -63,12 +61,12 @@ public class Item extends BaseEntity {
         this.itemUrl = itemUrl;
     }
 
-    public List<Image> getImages() {
-        return images;
+    public List<Image> getImage() {
+        return image;
     }
 
-    public void setImages(List<Image> images) {
-        this.images = images;
+    public void setImage(List<Image> image) {
+        this.image = image;
     }
 
     public List<Product> getProducts() {
@@ -78,18 +76,4 @@ public class Item extends BaseEntity {
     public void setProducts(List<Product> products) {
         this.products = products;
     }
-
-
-    @Override
-    public String toString() {
-        return "Item{" +
-                "itemId=" + itemId +
-                ", itemCode=" + itemCode +
-                ", itemName='" + itemName + '\'' +
-                ", itemUrl='" + itemUrl + '\'' +
-                ", images=" + images +
-                ", products=" + products +
-                '}';
-    }
-
 }
