@@ -7,6 +7,7 @@ public enum Seller {
 
     TOYSRUS_KR("TOYSRUS-KR", "toysrus.lottemart.com"),
     OFFICIAL_KR("OFFICIAL-KR", "shop.lego.com/ko-KR"),
+    OFFICIAL_US("OFFICIAL-US", "shop.lego.com/en-US"),
     AMAZON_US("AMAZON_US", "www.amazon.com");
 
     private String displayName;

@@ -19,6 +19,8 @@ public class Item extends BaseEntity {
 
     private String itemName;
 
+    private String itemText;
+
     @Column(name = "ITEM_URL")
     private String itemUrl;
 
@@ -74,5 +76,13 @@ public class Item extends BaseEntity {
 
     public void setProducts(List<Product> products) {
         this.products = products;
+    }
+
+    public String getItemText() {
+        return itemText;
+    }
+
+    public void setItemText(String itemText) {
+        this.itemText = itemText;
     }
 }

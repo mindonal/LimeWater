@@ -42,6 +42,8 @@ public class RakeService {
     private void getProductInfo(Item item) {
         rakeToysrusKR(item);
         rakeAmazonUS(item);
+        rakeOfficialKR(item);
+        rakeOfficialUS(item);
     }
 
     @Async
@@ -59,48 +61,44 @@ public class RakeService {
             Pattern pattern = Pattern.compile("\'([0-9])\\w+");
             Matcher matcher = pattern.matcher(searchedProductCode.attr("href"));
 
-            System.out.println("searchedProductCode.attr(\"href\") = " + searchedProductCode.attr("href"));
-
-
-            //lego 71016
-            String prdCode = "5702015366922";
+            String prdCode;
 
             if (matcher.find()) {
                 prdCode = matcher.group().replaceAll("'", "");
                 System.out.println("m.group() = " + prdCode);
+
+                Product product = new Product();
+
+                product.setPrdUrl("http://toysrus.lottemart.com/product/ProductDetail.do?ProductCD=" + prdCode);
+                System.out.println("\n>>>product.getPrdUrl() = " + product.getPrdUrl());
+                Document prdDoc = Jsoup.connect(product.getPrdUrl()).get();
+
+                //System.out.println("prdDoc.toString() = " + prdDoc.toString());
+
+                String priceRegex = "itemsCurrSalePrc\\s{0,9}=\\s{0,9}'\\d{1,3},\\d{1,3}'";
+                pattern = pattern.compile(priceRegex);
+                matcher = pattern.matcher(prdDoc.toString());
+
+                String stockPrice = "";
+                if (matcher.find()) {
+                    stockPrice = matcher.group().replaceAll("itemsCurrSalePrc", "")
+                            .replaceAll("'", "")
+                            .replaceAll("=", "").trim();
+
+                    System.out.println("stockPrice = " + stockPrice);
+                }
+
+                product.setItem(item);
+                product.setSeller(Seller.TOYSRUS_KR);
+
+                Stock stock = new Stock();
+                stock.setProduct(product);
+                stock.setCurrency(Stock.Currency.KRW);
+                stock.setPrice(stockPrice);
+
+                productRepository.save(product);
+                stockRepository.save(stock);
             }
-            Product product = new Product();
-
-            product.setPrdUrl("http://toysrus.lottemart.com/product/ProductDetail.do?ProductCD=" + prdCode);
-            System.out.println("\n>>>product.getPrdUrl() = " + product.getPrdUrl());
-            Document prdDoc = Jsoup.connect(product.getPrdUrl()).get();
-
-            //System.out.println("prdDoc.toString() = " + prdDoc.toString());
-
-            String priceRegex = "itemsCurrSalePrc\\s{0,9}=\\s{0,9}'\\d{1,3},\\d{1,3}'";
-            pattern = pattern.compile(priceRegex);
-            matcher = pattern.matcher(prdDoc.toString());
-
-            String stockPrice = "1,000";
-            if (matcher.find()) {
-                stockPrice = matcher.group().replaceAll("itemsCurrSalePrc", "")
-                        .replaceAll("'", "")
-                        .replaceAll("=", "").trim();
-
-                System.out.println("stockPrice = " + stockPrice);
-            }
-
-            product.setItem(item);
-            product.setSeller(Seller.TOYSRUS_KR);
-
-            Stock stock = new Stock();
-            stock.setProduct(product);
-            stock.setCurrency(Stock.Currency.KRW);
-            stock.setPrice(stockPrice);
-
-            productRepository.save(product);
-            stockRepository.save(stock);
-
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -111,7 +109,72 @@ public class RakeService {
 
     @Async
     public void rakeOfficialKR(Item item) {
+        Product product = new Product();
+        product.setItem(item);
+        /** Official Korea
+         * http://search-ko.lego.com/?q=76023&cc=KR#
+         * http://shop.lego.com/ko-KR/레고-배트맨-텀블러-76023
+         */
+        try {
+            String itemCode = item.getItemCode();
+            Document listDoc = Jsoup.connect("http://search-ko.lego.com/?q=" + itemCode + "&cc=KR#").get();
 
+            //product-name-kr
+            Elements searchedProducts = listDoc.select("#product-results .product-thumbnail.test-product.test-product-" + itemCode + " > a");
+            System.out.println("searchedProductName = " + searchedProducts);
+            //product-detail-url
+            product.setSeller(Seller.OFFICIAL_KR);
+            product.setPrdUrl(searchedProducts.attr("href").toString());
+
+            Document prdDoc = Jsoup.connect(product.getPrdUrl()).get();
+            Elements priceDoc = prdDoc.select(".product-price.test-unit-price-" + itemCode + " > em");
+
+            Stock stock = new Stock();
+            stock.setProduct(product);
+            stock.setCurrency(Stock.Currency.KRW);
+            stock.setPrice(priceDoc.text().replace("원", "").trim());
+
+            productRepository.save(product);
+            stockRepository.save(stock);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Async
+    public void rakeOfficialUS(Item item) {
+        Product product = new Product();
+        product.setItem(item);
+        /** Official Korea
+         * http://search-en.lego.com/?q=76023&cc=US#
+         * http://shop.lego.com/en-US/The-Tumbler-76023
+         */
+        try {
+            String itemCode = item.getItemCode();
+            Document listDoc = Jsoup.connect("http://search-en.lego.com/?q=" + itemCode + "&cc=US#").get();
+
+            //product-name-en
+            Elements searchedProducts = listDoc.select("#product-results .product-thumbnail.test-product.test-product-" + itemCode + " > a");
+            System.out.println("searchedProductName = " + searchedProducts);
+            //product-detail-url
+            product.setSeller(Seller.OFFICIAL_US);
+            product.setPrdUrl(searchedProducts.attr("href").toString());
+
+            Document prdDoc = Jsoup.connect(product.getPrdUrl()).get();
+            Elements priceDoc = prdDoc.select(".product-price.test-unit-price-" + itemCode + " > em");
+
+            Stock stock = new Stock();
+            stock.setProduct(product);
+            stock.setCurrency(Stock.Currency.USD);
+            stock.setPrice(priceDoc.text().replace("$", "").trim());
+
+            productRepository.save(product);
+            stockRepository.save(stock);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Async
@@ -131,11 +194,6 @@ public class RakeService {
 
             String prdUrl = searchedProductCode.attr("href");
 
-            System.out.println("##################################### = MM");
-            System.out.println("itemUrl = " + prdUrl);
-            System.out.println("##################################### = NN");
-
-
             Pattern pattern = Pattern.compile("/([A-Z])\\w+");
             Matcher matcher = pattern.matcher(prdUrl);
 
@@ -143,31 +201,34 @@ public class RakeService {
             matcher.find();
             if (matcher.find()) {
                 prdCode = matcher.group(0).replace("/", "");
-                System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>m.group() = " + prdCode);
             }
 
             Product product = new Product();
 
             Random rand = new Random();
-            Document prdDoc;
+            Document prdDoc = null;
 
             product.setPrdUrl(prdUrl);
+            Integer randomInt = rand.nextInt((150000 - 100000) + 1) + 100000;
             try {
-                System.out.println("try 1");
-                prdDoc = Jsoup.connect(prdUrl).timeout(rand.nextInt((15000 - 10000) + 1) + 10000).get();
+                System.out.println("## try 1 " + randomInt);
+                prdDoc = Jsoup.connect(prdUrl).timeout(randomInt).get();
+                randomInt = rand.nextInt((150000 - 100000) + 1) + 100000;
             } catch (Exception e) {
-                System.out.println("try 2");
-                prdDoc = Jsoup.connect(prdUrl).timeout(rand.nextInt((15000 - 10000) + 1) + 10000).get();
+                System.out.println("## try 2 " + randomInt);
+                prdDoc = Jsoup.connect(prdUrl).timeout(randomInt).get();
+                randomInt = rand.nextInt((150000 - 100000) + 1) + 100000;
             } finally {
-
+                if (prdDoc == null) {
+                    System.out.println("## try 3");
+                    prdDoc = Jsoup.connect(prdUrl).timeout(randomInt).get();
+                }
             }
             Elements priceDoc = prdDoc.select("#priceblock_ourprice");
-            System.out.println("priceDoc.toString() = " + priceDoc.toString());
-            System.out.println("priceDoc.select(\"span\").text() = " + priceDoc.select("span").text());
-
+            //System.out.println("priceDoc.toString() = " + priceDoc.toString());
+            //System.out.println("priceDoc.select(\"span\").text() = " + priceDoc.select("span").text());
 
             String stockPrice = priceDoc.select("span").text().replace("$", "");
-
 
             product.setItem(item);
             product.setSeller(Seller.AMAZON_US);
@@ -192,16 +253,20 @@ public class RakeService {
             System.out.println("itemCode >>>> " + itemCode);
             Document listDoc = Jsoup.connect("http://search-en.lego.com/?q=" + itemCode + "&cc=US#").get();
 
-            //item-code
-            Elements searchedItemCode = listDoc.select("#product-results .item-code ");
-
-            parsedItem.setItemCode(searchedItemCode.html().toString());
+            parsedItem.setItemCode(itemCode);
             //item-name-en
-            Elements searchedItemName = listDoc.select("#product-results h4 > a ");
+            Elements searchedItemName = listDoc.select("#product-results .product-thumbnail.test-product.test-product-" + itemCode + " > a");
             System.out.println("searchedItemName = " + searchedItemName);
             //item-detail-url
             parsedItem.setItemName(searchedItemName.attr("title").toString());
             parsedItem.setItemUrl(searchedItemName.attr("href").toString());
+
+            Elements itemText = listDoc.select("#marketing-text");
+
+            System.out.println("itemText=" + itemText);
+
+            parsedItem.setItemText(itemText.text());
+
             itemRepository.save(parsedItem);
 
             //item-image-url

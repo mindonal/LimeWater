@@ -21,10 +21,10 @@ public class WatchController {
     @Autowired
     WatchService watchService;
 
-
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public List<Item> getItemAllList() throws IOException
     {
+        //todo : dto 만들어서 적용
         return watchService.getItemList();
     }
 
@@ -32,12 +32,6 @@ public class WatchController {
     public Item watchItem(@PathVariable String itemCode) throws IOException
     {
         return watchService.watchItem(itemCode);
-    }
-
-    @RequestMapping(value = "/domcheck/{itemCode}", method = RequestMethod.GET)
-    public Item domcheck(@PathVariable String itemCode) throws IOException
-    {
-        return watchService.getHtml(itemCode);
     }
 
 }
