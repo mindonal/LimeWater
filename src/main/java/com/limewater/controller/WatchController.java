@@ -1,6 +1,8 @@
 package com.limewater.controller;
 
 import com.limewater.entity.Item;
+import com.limewater.entity.Product;
+import com.limewater.service.StockService;
 import com.limewater.service.WatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +23,9 @@ public class WatchController {
     @Autowired
     WatchService watchService;
 
+    @Autowired
+    StockService stockService;
+
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public List<Item> getItemAllList() throws IOException
     {
@@ -32,6 +37,12 @@ public class WatchController {
     public Item watchItem(@PathVariable String itemCode) throws IOException
     {
         return watchService.watchItem(itemCode);
+    }
+
+    @RequestMapping(value = "/rakeTarget", method = RequestMethod.GET)
+    public List<Product> getProductWithOldStockInfo() throws IOException {
+        //todo : dto 만들어서 적용
+        return stockService.getProductWithOldStockInfo();
     }
 
 }

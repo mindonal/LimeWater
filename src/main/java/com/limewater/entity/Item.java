@@ -19,7 +19,9 @@ public class Item extends BaseEntity {
 
     private String itemName;
 
-    private String itemText;
+    private String itemTextEn = "";
+
+    private String itemTextKr = "";
 
     @Column(name = "ITEM_URL")
     private String itemUrl;
@@ -27,7 +29,7 @@ public class Item extends BaseEntity {
     @OneToMany(mappedBy = "item")
     private List<Image> image;
 
-    @OneToMany(mappedBy = "item")
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
     private List<Product> products;
 
     public Integer getItemId() {
@@ -78,11 +80,19 @@ public class Item extends BaseEntity {
         this.products = products;
     }
 
-    public String getItemText() {
-        return itemText;
+    public String getItemTextEn() {
+        return itemTextEn;
     }
 
-    public void setItemText(String itemText) {
-        this.itemText = itemText;
+    public void setItemTextEn(String itemTextEn) {
+        this.itemTextEn = itemTextEn;
+    }
+
+    public String getItemTextKr() {
+        return itemTextKr;
+    }
+
+    public void setItemTextKr(String itemTextKr) {
+        this.itemTextKr = itemTextKr;
     }
 }

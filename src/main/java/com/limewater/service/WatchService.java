@@ -1,19 +1,12 @@
 package com.limewater.service;
 
-import com.limewater.entity.Image;
 import com.limewater.entity.Item;
 import com.limewater.repository.ImageRepository;
 import com.limewater.repository.ItemRepository;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,104 +46,21 @@ public class WatchService {
 
 
         Item watchItem = itemRepository.findOneByItemCode(itemCode);
-        // 먼저 있는지 check
-//        if (getItemList().size() > 0) {
-//            watchItem = getItemList().stream()
-//                    .filter(i -> i.getItemCode() == itemCode)
-//                    .filter(Objects::nonNull)
-//                    .findAny()
-//                    .get();
-//        }
-
+        /** 먼저 있는지 check
+         if (getItemList().size() > 0) {
+         watchItem = getItemList().stream()
+         .filter(i -> i.getItemCode() == itemCode)
+         .filter(Objects::nonNull)
+         .findAny()
+         .get();
+         }*/
 
         // 없으면 저장, 조사
         if (watchItem == null || watchItem.getItemCode().isEmpty()) {
             watchItem = rakeService.getItemInfo(itemCode);
         }
 
-
         return watchItem;
-    }
-
-    /**************************************************/
-
-
-    public Item getItem(String itemCode) {
-        return checkItemExist(itemCode);
-    }
-
-    private Item checkItemExist(String itemCode) {
-
-        Item checkItem = itemRepository.findOneByItemCode(itemCode);
-
-        //Optional<Item> i = getItemList().stream().filter(x -> x.getItemCode() == Integer.parseInt(itemCode)).findAny().orElse();
-
-        if (checkItem != null) {
-            checkItem = itemRepository.findOneByItemCode(itemCode);
-        } else {
-            parseAndInsertItem(itemCode);
-
-        }
-        return checkItem;
-    }
-
-    @Async
-    private void parseAndInsertItem(String itemCode) {
-        try {
-            //Document listDoc = Jsoup.connect("http://search-ko.lego.com/?q="+itemCode+"&cc=KR#").get();
-            Document listDoc = Jsoup.connect("http://search-en.lego.com/?q=" + itemCode + "&cc=US#").get();
-
-            System.out.println("listDoc.toString() = " + listDoc.toString());
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public Item getHtml(String itemCode) {
-        String result = "";
-        Item parsedItem = new Item();
-        try {
-
-            //Document listDoc = Jsoup.connect("http://search-ko.lego.com/?q="+itemCode+"&cc=KR#").get();
-            Document listDoc = Jsoup.connect("http://search-en.lego.com/?q=" + itemCode + "&cc=US#").get();
-
-            //item-code
-            Elements searchedItemCode = listDoc.select("#product-results .item-code ");
-
-            System.out.println("searchedItemCode.html() = " + searchedItemCode.html());
-
-            parsedItem.setItemCode(searchedItemCode.html().toString());
-
-            //item-name-en
-            Elements searchedItemName = listDoc.select("#product-results h4 > a ");
-            System.out.println("searchedItemName = " + searchedItemName);
-            //item-detail-url
-            parsedItem.setItemName(searchedItemName.attr("title").toString());
-            parsedItem.setItemUrl(searchedItemName.attr("href").toString());
-
-            itemRepository.save(parsedItem);
-
-            //item-image-url
-            Image itemMainImage = new Image();
-            itemMainImage.setImageUrl("http://cache.lego.com/e/dynamic/is/image/LEGO/" + itemCode + "?$main$");
-            itemMainImage.setItem(parsedItem);
-            imageRepository.save(itemMainImage);
-
-            List<Image> images = new ArrayList<Image>();
-            images.add(itemMainImage);
-            parsedItem.setImage(images);
-            itemRepository.save(parsedItem);
-
-            result = searchedItemCode.toString();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return parsedItem;
     }
 
 

@@ -10,7 +10,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -38,7 +37,6 @@ public class RakeService {
     @Autowired
     StockRepository stockRepository;
 
-    @Async
     private void getProductInfo(Item item) {
         rakeToysrusKR(item);
         rakeAmazonUS(item);
@@ -46,7 +44,6 @@ public class RakeService {
         rakeOfficialUS(item);
     }
 
-    @Async
     public void rakeToysrusKR(Item item) {
         /** Toysrus korea
          * http://toysrus.lottemart.com/search/search.do?searchTerm=lego+31035
@@ -76,7 +73,7 @@ public class RakeService {
                 //System.out.println("prdDoc.toString() = " + prdDoc.toString());
 
                 String priceRegex = "itemsCurrSalePrc\\s{0,9}=\\s{0,9}'\\d{1,3},\\d{1,3}'";
-                pattern = pattern.compile(priceRegex);
+                pattern = Pattern.compile(priceRegex);
                 matcher = pattern.matcher(prdDoc.toString());
 
                 String stockPrice = "";
@@ -107,7 +104,6 @@ public class RakeService {
 
     }
 
-    @Async
     public void rakeOfficialKR(Item item) {
         Product product = new Product();
         product.setItem(item);
@@ -122,27 +118,34 @@ public class RakeService {
             //product-name-kr
             Elements searchedProducts = listDoc.select("#product-results .product-thumbnail.test-product.test-product-" + itemCode + " > a");
             System.out.println("searchedProductName = " + searchedProducts);
-            //product-detail-url
-            product.setSeller(Seller.OFFICIAL_KR);
-            product.setPrdUrl(searchedProducts.attr("href").toString());
 
-            Document prdDoc = Jsoup.connect(product.getPrdUrl()).get();
-            Elements priceDoc = prdDoc.select(".product-price.test-unit-price-" + itemCode + " > em");
+            if (searchedProducts.hasText()) {
+                //product-detail-url
+                product.setSeller(Seller.OFFICIAL_KR);
+                product.setPrdUrl(searchedProducts.attr("href").toString());
 
-            Stock stock = new Stock();
-            stock.setProduct(product);
-            stock.setCurrency(Stock.Currency.KRW);
-            stock.setPrice(priceDoc.text().replace("원", "").trim());
+                Document prdDoc = Jsoup.connect(product.getPrdUrl()).get();
+                Elements priceDoc = prdDoc.select(".product-price.test-unit-price-" + itemCode + " > em");
 
-            productRepository.save(product);
-            stockRepository.save(stock);
+                //item marketing text
+                Element itemText = prdDoc.select("p#marketing-text").first();
+                System.out.println("itemText=>>>>" + itemText.nextElementSibling().text());
+                item.setItemTextKr(itemText.nextElementSibling().text());
+
+                Stock stock = new Stock();
+                stock.setProduct(product);
+                stock.setCurrency(Stock.Currency.KRW);
+                stock.setPrice(priceDoc.text().replace("원", "").trim());
+
+                productRepository.save(product);
+                stockRepository.save(stock);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    @Async
     public void rakeOfficialUS(Item item) {
         Product product = new Product();
         product.setItem(item);
@@ -157,27 +160,33 @@ public class RakeService {
             //product-name-en
             Elements searchedProducts = listDoc.select("#product-results .product-thumbnail.test-product.test-product-" + itemCode + " > a");
             System.out.println("searchedProductName = " + searchedProducts);
-            //product-detail-url
-            product.setSeller(Seller.OFFICIAL_US);
-            product.setPrdUrl(searchedProducts.attr("href").toString());
 
-            Document prdDoc = Jsoup.connect(product.getPrdUrl()).get();
-            Elements priceDoc = prdDoc.select(".product-price.test-unit-price-" + itemCode + " > em");
+            if (searchedProducts.hasText()) {
+                //product-detail-url
+                product.setSeller(Seller.OFFICIAL_US);
+                product.setPrdUrl(searchedProducts.attr("href").toString());
 
-            Stock stock = new Stock();
-            stock.setProduct(product);
-            stock.setCurrency(Stock.Currency.USD);
-            stock.setPrice(priceDoc.text().replace("$", "").trim());
+                Document prdDoc = Jsoup.connect(product.getPrdUrl()).get();
+                Elements priceDoc = prdDoc.select(".product-price.test-unit-price-" + itemCode + " > em");
 
-            productRepository.save(product);
-            stockRepository.save(stock);
+                //item marketing text
+                Elements itemText = prdDoc.select("p#marketing-text");
+                System.out.println("itemText=>>>>" + itemText.text());
+                item.setItemTextEn(itemText.text());
 
+                Stock stock = new Stock();
+                stock.setProduct(product);
+                stock.setCurrency(Stock.Currency.USD);
+                stock.setPrice(priceDoc.text().replace("$", "").trim());
+
+                productRepository.save(product);
+                stockRepository.save(stock);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    @Async
     public void rakeAmazonUS(Item item) {
 
         /** Amazon US
@@ -213,14 +222,14 @@ public class RakeService {
             try {
                 System.out.println("## try 1 " + randomInt);
                 prdDoc = Jsoup.connect(prdUrl).timeout(randomInt).get();
-                randomInt = rand.nextInt((150000 - 100000) + 1) + 100000;
             } catch (Exception e) {
+                randomInt = rand.nextInt((150000 - 100000) + 1) + 100000;
                 System.out.println("## try 2 " + randomInt);
                 prdDoc = Jsoup.connect(prdUrl).timeout(randomInt).get();
-                randomInt = rand.nextInt((150000 - 100000) + 1) + 100000;
             } finally {
                 if (prdDoc == null) {
-                    System.out.println("## try 3");
+                    randomInt = rand.nextInt((150000 - 100000) + 1) + 100000;
+                    System.out.println("## try 3" + randomInt);
                     prdDoc = Jsoup.connect(prdUrl).timeout(randomInt).get();
                 }
             }
@@ -253,21 +262,13 @@ public class RakeService {
             System.out.println("itemCode >>>> " + itemCode);
             Document listDoc = Jsoup.connect("http://search-en.lego.com/?q=" + itemCode + "&cc=US#").get();
 
-            parsedItem.setItemCode(itemCode);
             //item-name-en
             Elements searchedItemName = listDoc.select("#product-results .product-thumbnail.test-product.test-product-" + itemCode + " > a");
             System.out.println("searchedItemName = " + searchedItemName);
             //item-detail-url
+            parsedItem.setItemCode(itemCode);
             parsedItem.setItemName(searchedItemName.attr("title").toString());
             parsedItem.setItemUrl(searchedItemName.attr("href").toString());
-
-            Elements itemText = listDoc.select("#marketing-text");
-
-            System.out.println("itemText=" + itemText);
-
-            parsedItem.setItemText(itemText.text());
-
-            itemRepository.save(parsedItem);
 
             //item-image-url
             Image itemMainImage = new Image();
@@ -276,12 +277,12 @@ public class RakeService {
 
             System.out.println("itemMainImage.toString() = " + itemMainImage.toString());
 
-            imageRepository.save(itemMainImage);
-
             List<Image> imagelist = new ArrayList<Image>();
             imagelist.add(itemMainImage);
             parsedItem.setImage(imagelist);
+
             itemRepository.save(parsedItem);
+            imageRepository.saveAndFlush(itemMainImage);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -289,8 +290,6 @@ public class RakeService {
 
         //해당 item stock정보 조사
         getProductInfo(parsedItem);
-
-        System.out.println("parsedItem.toString() = " + parsedItem.toString());
 
         return parsedItem;
     }
