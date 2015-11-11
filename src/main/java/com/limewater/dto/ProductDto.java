@@ -27,7 +27,7 @@ public class ProductDto {
         this.seller = product.getSeller().toString();
 
         Stock stock = product.getStocks().get(0);
-        this.inStock = stock.getInStock();
+        this.inStock = stock.getAvailability();
         this.currency = stock.getCurrency().toString();
         this.price = stock.getPrice();
         this.avaiable = stock.getAvaiable();

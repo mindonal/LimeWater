@@ -1,6 +1,5 @@
 package com.limewater.entity;
 
-import com.limewater.dto.ImageDto;
 import com.limewater.dto.ItemDto;
 import com.limewater.dto.ProductDto;
 
@@ -29,6 +28,8 @@ public class Item extends BaseEntity {
 
     private String itemTextKr = "";
 
+    private String itemBadge = "";
+
     @Column(name = "ITEM_URL")
     private String itemUrl;
 
@@ -45,10 +46,12 @@ public class Item extends BaseEntity {
         itemDto.setItemName(this.getItemName());
         itemDto.setItemTextEn(this.getItemTextEn());
         itemDto.setItemTextKr(this.getItemTextKr());
+        itemDto.setItemBadge(this.getItemBadge());
         itemDto.setItemUrl(this.getItemUrl());
-        itemDto.setImage(StreamSupport
-                .stream(this.getImage().spliterator(), false)
-                .map(ImageDto::new).collect(Collectors.toList()));
+        itemDto.setImages(this.getImage()
+                .stream()
+                .map(i -> i.getImageUrl())
+                .collect(Collectors.toList()));
         if (this.getProducts() != null) {
             itemDto.setProduct(StreamSupport
                     .stream(this.getProducts().spliterator(), false)
@@ -121,6 +124,14 @@ public class Item extends BaseEntity {
         this.itemTextKr = itemTextKr;
     }
 
+    public String getItemBadge() {
+        return itemBadge;
+    }
+
+    public void setItemBadge(String itemBadge) {
+        this.itemBadge = itemBadge;
+    }
+
     @Override
     public String toString() {
         return "Item{" +
@@ -129,6 +140,7 @@ public class Item extends BaseEntity {
                 ", itemName='" + itemName + '\'' +
                 ", itemTextEn='" + itemTextEn + '\'' +
                 ", itemTextKr='" + itemTextKr + '\'' +
+                ", itemBadge=" + itemBadge +
                 ", itemUrl='" + itemUrl + '\'' +
                 ", image=" + image +
                 ", products=" + products +

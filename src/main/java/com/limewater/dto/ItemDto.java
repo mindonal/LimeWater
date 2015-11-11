@@ -24,7 +24,8 @@ public class ItemDto {
     private String itemTextEn;
     private String itemTextKr;
     private String itemUrl;
-    private List<ImageDto> image;
+    private String itemBadge;
+    private List<String> images;
     private List<ProductDto> product;
 
     public ItemDto(Item item) {
@@ -33,9 +34,13 @@ public class ItemDto {
         this.itemTextEn = item.getItemTextEn();
         this.itemTextKr = item.getItemTextKr();
         this.itemUrl = item.getItemUrl();
-        this.image = StreamSupport
-                .stream(item.getImage().spliterator(), false)
-                .map(ImageDto::new).collect(Collectors.toList());
+        this.itemBadge = item.getItemBadge();
+
+        this.images = item.getImage()
+                .stream()
+                .map(i -> i.getImageUrl())
+                .collect(Collectors.toList());
+
         this.product = StreamSupport
                 .stream(item.getProducts().spliterator(), false)
                 .map(ProductDto::new).collect(Collectors.toList());

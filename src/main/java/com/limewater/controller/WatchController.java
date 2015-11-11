@@ -1,7 +1,7 @@
 package com.limewater.controller;
 
 import com.limewater.dto.ItemDto;
-import com.limewater.entity.Product;
+import com.limewater.dto.ProductDto;
 import com.limewater.service.StockService;
 import com.limewater.service.WatchService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -42,9 +43,15 @@ public class WatchController {
     }
 
     @RequestMapping(value = "/rakeTarget", method = RequestMethod.GET)
-    public List<Product> getProductWithOldStockInfo() throws IOException {
-        //todo : dto 만들어서 적용
-        return stockService.getProductWithOldStockInfo();
+    public Map rakeProductWithOldStockInfo() throws IOException {
+        return stockService.rakeProductWithOldStockInfo();
+    }
+
+    @RequestMapping(value = "/rakeTarget/list", method = RequestMethod.GET)
+    public List<ProductDto> getProductWithOldStockInfo() throws IOException {
+        return StreamSupport
+                .stream(stockService.getProductWithOldStockInfo().spliterator(), false)
+                .map(ProductDto::new).collect(Collectors.toList());
     }
 
 }

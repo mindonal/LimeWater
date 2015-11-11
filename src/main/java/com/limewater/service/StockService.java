@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -29,10 +30,14 @@ public class StockService {
         return productRepository.findAll()
                 .stream()
                 .filter(i -> i.getUpdatedByLocalDateTime()
-                        .plusSeconds(Long.valueOf("10"))
+                        .plusSeconds(Long.valueOf("30"))
                         .isBefore(LocalDateTime.now())
                 )
                 .collect(Collectors.toList());
     }
 
+    public Map rakeProductWithOldStockInfo() {
+
+        return null;
+    }
 }

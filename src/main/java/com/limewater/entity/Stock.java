@@ -33,7 +33,7 @@ public class Stock extends BaseEntity {
 
     private String price;
 
-    private Boolean inStock;
+    private Boolean availability;
 
     private int avaiable;
 

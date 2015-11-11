@@ -106,6 +106,7 @@ public class RakeService {
 
     public void rakeOfficialKR(Item item) {
         Product product = new Product();
+        Stock stock = new Stock();
         product.setItem(item);
         /** Official Korea
          * http://search-ko.lego.com/?q=76023&cc=KR#
@@ -125,17 +126,23 @@ public class RakeService {
                 product.setPrdUrl(searchedProducts.attr("href").toString());
 
                 Document prdDoc = Jsoup.connect(product.getPrdUrl()).get();
-                Elements priceDoc = prdDoc.select(".product-price.test-unit-price-" + itemCode + " > em");
+                Elements priceDom = prdDoc.select(".product-price.test-unit-price-" + itemCode + " > em");
+
+                //availability-now
+                Element availabilityDom = prdDoc.select(".availability-now").first();
+
+                Boolean availability = (availabilityDom != null && availabilityDom.text().trim().equals("구매가능")) ? true : false;
+                stock.setAvailability(availability);
 
                 //item marketing text
                 Element itemText = prdDoc.select("p#marketing-text").first();
                 System.out.println("itemText=>>>>" + itemText.nextElementSibling().text());
                 item.setItemTextKr(itemText.nextElementSibling().text());
 
-                Stock stock = new Stock();
+
                 stock.setProduct(product);
                 stock.setCurrency(Stock.Currency.KRW);
-                stock.setPrice(priceDoc.text().replace("원", "").trim());
+                stock.setPrice(priceDom.text().replace("원", "").trim());
 
                 productRepository.save(product);
                 stockRepository.save(stock);
@@ -148,6 +155,7 @@ public class RakeService {
 
     public void rakeOfficialUS(Item item) {
         Product product = new Product();
+        Stock stock = new Stock();
         product.setItem(item);
         /** Official Korea
          * http://search-en.lego.com/?q=76023&cc=US#
@@ -167,17 +175,21 @@ public class RakeService {
                 product.setPrdUrl(searchedProducts.attr("href").toString());
 
                 Document prdDoc = Jsoup.connect(product.getPrdUrl()).get();
-                Elements priceDoc = prdDoc.select(".product-price.test-unit-price-" + itemCode + " > em");
+                Elements priceDom = prdDoc.select(".product-price.test-unit-price-" + itemCode + " > em");
+
+                //availability-now
+                Element availabilityDom = prdDoc.select(".availability-now").first();
+                Boolean availability = (availabilityDom != null && availabilityDom.text().trim().equals("Available Now")) ? true : false;
+                stock.setAvailability(availability);
 
                 //item marketing text
                 Elements itemText = prdDoc.select("p#marketing-text");
                 System.out.println("itemText=>>>>" + itemText.text());
                 item.setItemTextEn(itemText.text());
 
-                Stock stock = new Stock();
                 stock.setProduct(product);
                 stock.setCurrency(Stock.Currency.USD);
-                stock.setPrice(priceDoc.text().replace("$", "").trim());
+                stock.setPrice(priceDom.text().replace("$", "").trim());
 
                 productRepository.save(product);
                 stockRepository.save(stock);
@@ -214,35 +226,50 @@ public class RakeService {
 
             Product product = new Product();
 
-            Random rand = new Random();
             Document prdDoc = null;
 
             product.setPrdUrl(prdUrl);
-            Integer randomInt = rand.nextInt((150000 - 100000) + 1) + 100000;
+            Integer randomInt = getRandomInt(1000);
             try {
                 System.out.println("## try 1 " + randomInt);
                 prdDoc = Jsoup.connect(prdUrl).timeout(randomInt).get();
             } catch (Exception e) {
-                randomInt = rand.nextInt((150000 - 100000) + 1) + 100000;
+                randomInt = getRandomInt(5000);
                 System.out.println("## try 2 " + randomInt);
                 prdDoc = Jsoup.connect(prdUrl).timeout(randomInt).get();
             } finally {
                 if (prdDoc == null) {
-                    randomInt = rand.nextInt((150000 - 100000) + 1) + 100000;
-                    System.out.println("## try 3" + randomInt);
+                    randomInt = getRandomInt(8000);
+                    System.out.println("## try 3 " + randomInt);
                     prdDoc = Jsoup.connect(prdUrl).timeout(randomInt).get();
                 }
             }
-            Elements priceDoc = prdDoc.select("#priceblock_ourprice");
-            //System.out.println("priceDoc.toString() = " + priceDoc.toString());
-            //System.out.println("priceDoc.select(\"span\").text() = " + priceDoc.select("span").text());
 
-            String stockPrice = priceDoc.select("span").text().replace("$", "");
+            //add item image
+            Elements imagesDoms = prdDoc.select("#imgTagWrapperId > img");
+            Element imageDom = imagesDoms.first();
+            Image firstImage = new Image();
+            System.out.println("imageDom.attr(\"src\") = " + imageDom.attr("src"));
+            firstImage.setItem(item);
+            firstImage.setImageUrl(imageDom.attr("src"));
+            imageRepository.save(firstImage);
+
+            //price
+            Elements priceDom = prdDoc.select("#priceblock_ourprice");
+            //System.out.println("priceDom.toString() = " + priceDom.toString());
+            //System.out.println("priceDom.select(\"span\").text() = " + priceDom.select("span").text());
+
+            String stockPrice = priceDom.select("span").text().replace("$", "");
 
             product.setItem(item);
             product.setSeller(Seller.AMAZON_US);
 
             Stock stock = new Stock();
+
+            //availability
+            Element availabilityDom = prdDoc.select("#availability > span").first();
+            Boolean availability = (availabilityDom != null && availabilityDom.text().trim().equals("In Stock.")) ? true : false;
+            stock.setAvailability(availability);
             stock.setProduct(product);
             stock.setCurrency(Stock.Currency.USD);
             stock.setPrice(stockPrice);
@@ -251,9 +278,15 @@ public class RakeService {
             stockRepository.save(stock);
 
         } catch (IOException e) {
-            e.printStackTrace();
+
         }
 
+    }
+
+    private Integer getRandomInt(Integer min) {
+        Random rand = new Random();
+        Integer max = min + 50000;
+        return rand.nextInt((max - min) + 1) + min;
     }
 
     public Item getItemInfo(String itemCode) {
@@ -269,6 +302,12 @@ public class RakeService {
             parsedItem.setItemCode(itemCode);
             parsedItem.setItemName(searchedItemName.attr("title").toString());
             parsedItem.setItemUrl(searchedItemName.attr("href").toString());
+
+            //item badge
+            Element searchedItemBadge = listDoc.select("#product-results .product-thumbnail.test-product.test-product-" + itemCode + " > ul li").first();
+            if (searchedItemBadge != null) {
+                parsedItem.setItemBadge(searchedItemBadge.text());
+            }
 
             //item-image-url
             Image itemMainImage = new Image();
