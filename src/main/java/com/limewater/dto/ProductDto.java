@@ -15,7 +15,7 @@ public class ProductDto {
     private String prdUrl;
     private String seller;
     private String price;
-    private Boolean inStock;
+    private Boolean availability;
     private String currency;
     private int avaiable;
     private int total;
@@ -27,7 +27,7 @@ public class ProductDto {
         this.seller = product.getSeller().toString();
 
         Stock stock = product.getStocks().get(0);
-        this.inStock = stock.getAvailability();
+        this.availability = stock.getAvailability();
         this.currency = stock.getCurrency().toString();
         this.price = stock.getPrice();
         this.avaiable = stock.getAvaiable();

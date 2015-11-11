@@ -49,6 +49,8 @@ public class RakeService {
          * http://toysrus.lottemart.com/search/search.do?searchTerm=lego+31035
          * http://toysrus.lottemart.com/product/ProductDetail.do?ProductCD=5702015366922
          */
+        Stock stock = new Stock();
+        Product product = new Product();
         try {
             String itemCode = String.valueOf(item.getItemCode());
             Document listDoc = Jsoup.connect("http://toysrus.lottemart.com/search/search.do?searchTerm=lego+" + itemCode).get();
@@ -62,12 +64,7 @@ public class RakeService {
 
             if (matcher.find()) {
                 prdCode = matcher.group().replaceAll("'", "");
-                System.out.println("m.group() = " + prdCode);
-
-                Product product = new Product();
-
                 product.setPrdUrl("http://toysrus.lottemart.com/product/ProductDetail.do?ProductCD=" + prdCode);
-                System.out.println("\n>>>product.getPrdUrl() = " + product.getPrdUrl());
                 Document prdDoc = Jsoup.connect(product.getPrdUrl()).get();
 
                 //System.out.println("prdDoc.toString() = " + prdDoc.toString());
@@ -88,7 +85,17 @@ public class RakeService {
                 product.setItem(item);
                 product.setSeller(Seller.TOYSRUS_KR);
 
-                Stock stock = new Stock();
+                //구매가능 수량
+                Element availabilityDom = prdDoc.select(".pd0.limited-price td .point").first();
+
+                if (availabilityDom != null) System.out.println("availabilityDom.text() = " + availabilityDom.text());
+
+                Boolean availability = (availabilityDom != null && Integer.valueOf(availabilityDom.text()) > 0) ? true : false;
+                stock.setAvailability(availability);
+
+                stock.setAvaiable(Integer.valueOf(availabilityDom.text()));
+                stock.setTotal(Integer.valueOf(availabilityDom.nextElementSibling().text()));
+
                 stock.setProduct(product);
                 stock.setCurrency(Stock.Currency.KRW);
                 stock.setPrice(stockPrice);
