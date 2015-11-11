@@ -1,5 +1,6 @@
 package com.limewater.controller;
 
+import com.limewater.dto.ItemDto;
 import com.limewater.entity.Item;
 import com.limewater.entity.Product;
 import com.limewater.service.StockService;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Created by mindonal@gmail.com on 9/14/15.
@@ -27,15 +30,15 @@ public class WatchController {
     StockService stockService;
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public List<Item> getItemAllList() throws IOException
-    {
-        //todo : dto 만들어서 적용
-        return watchService.getItemList();
+    public List<ItemDto> getItemAllList() throws IOException {
+        List<ItemDto> itemDtoList = StreamSupport
+                .stream(watchService.getItemList().spliterator(), false)
+                .map(ItemDto::new).collect(Collectors.toList());
+        return itemDtoList;
     }
 
     @RequestMapping(value = "/{itemCode}", method = RequestMethod.GET)
-    public Item watchItem(@PathVariable String itemCode) throws IOException
-    {
+    public Item watchItem(@PathVariable String itemCode) throws IOException {
         return watchService.watchItem(itemCode);
     }
 

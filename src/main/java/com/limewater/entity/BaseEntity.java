@@ -41,7 +41,7 @@ public abstract class BaseEntity implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    public LocalDateTime getUpdatedAtLocalDateTime() {
+    public LocalDateTime getUpdatedByLocalDateTime() {
         LocalDateTime localDateTime = LocalDateTime.ofInstant(getUpdatedAt().toInstant(), ZoneId.systemDefault());
         return localDateTime;
     }

@@ -28,7 +28,7 @@ public class StockService {
     public List<Product> getProductWithOldStockInfo() {
         return productRepository.findAll()
                 .stream()
-                .filter(i -> i.getUpdatedAtLocalDateTime()
+                .filter(i -> i.getUpdatedByLocalDateTime()
                         .plusSeconds(Long.valueOf("10"))
                         .isBefore(LocalDateTime.now())
                 )
