@@ -1,7 +1,13 @@
 package com.limewater.entity;
 
+import com.limewater.dto.ImageDto;
+import com.limewater.dto.ItemDto;
+import com.limewater.dto.ProductDto;
+
 import javax.persistence.*;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Created by mindonal@gmail.com on 9/14/15.
@@ -31,6 +37,25 @@ public class Item extends BaseEntity {
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
     private List<Product> products;
+
+    public ItemDto convertItemDto() {
+
+        ItemDto itemDto = new ItemDto();
+        itemDto.setItemCode(this.getItemCode());
+        itemDto.setItemName(this.getItemName());
+        itemDto.setItemTextEn(this.getItemTextEn());
+        itemDto.setItemTextKr(this.getItemTextKr());
+        itemDto.setItemUrl(this.getItemUrl());
+        itemDto.setImage(StreamSupport
+                .stream(this.getImage().spliterator(), false)
+                .map(ImageDto::new).collect(Collectors.toList()));
+        if (this.getProducts() != null) {
+            itemDto.setProduct(StreamSupport
+                    .stream(this.getProducts().spliterator(), false)
+                    .map(ProductDto::new).collect(Collectors.toList()));
+        }
+        return itemDto;
+    }
 
     public Integer getItemId() {
         return itemId;
@@ -94,5 +119,19 @@ public class Item extends BaseEntity {
 
     public void setItemTextKr(String itemTextKr) {
         this.itemTextKr = itemTextKr;
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "itemId=" + itemId +
+                ", itemCode='" + itemCode + '\'' +
+                ", itemName='" + itemName + '\'' +
+                ", itemTextEn='" + itemTextEn + '\'' +
+                ", itemTextKr='" + itemTextKr + '\'' +
+                ", itemUrl='" + itemUrl + '\'' +
+                ", image=" + image +
+                ", products=" + products +
+                '}';
     }
 }

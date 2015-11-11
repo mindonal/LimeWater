@@ -1,7 +1,9 @@
 package com.limewater.dto;
 
 import com.limewater.entity.Item;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -13,6 +15,8 @@ import java.util.stream.StreamSupport;
  */
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemDto {
 
     private String itemCode;
@@ -21,9 +25,7 @@ public class ItemDto {
     private String itemTextKr;
     private String itemUrl;
     private List<ImageDto> image;
-
-    public ItemDto() {
-    }
+    private List<ProductDto> product;
 
     public ItemDto(Item item) {
         this.itemCode = item.getItemCode();
@@ -34,10 +36,12 @@ public class ItemDto {
         this.image = StreamSupport
                 .stream(item.getImage().spliterator(), false)
                 .map(ImageDto::new).collect(Collectors.toList());
-        //this.products = item.getProducts();
+        this.product = StreamSupport
+                .stream(item.getProducts().spliterator(), false)
+                .map(ProductDto::new).collect(Collectors.toList());
     }
 
-    //private List<Product> products;
+    //
 
 }
 

@@ -1,7 +1,6 @@
 package com.limewater.controller;
 
 import com.limewater.dto.ItemDto;
-import com.limewater.entity.Item;
 import com.limewater.entity.Product;
 import com.limewater.service.StockService;
 import com.limewater.service.WatchService;
@@ -38,8 +37,8 @@ public class WatchController {
     }
 
     @RequestMapping(value = "/{itemCode}", method = RequestMethod.GET)
-    public Item watchItem(@PathVariable String itemCode) throws IOException {
-        return watchService.watchItem(itemCode);
+    public ItemDto watchItem(@PathVariable String itemCode) throws IOException {
+        return watchService.watchItem(itemCode).convertItemDto();
     }
 
     @RequestMapping(value = "/rakeTarget", method = RequestMethod.GET)
