@@ -15,7 +15,7 @@ public class ProductDto {
     private String prdUrl;
     private String seller;
     private String price;
-    private Boolean availability;
+    private Boolean availability = false;
     private String currency;
     private int avaiable;
     private int total;

@@ -37,6 +37,9 @@ public class RakeService {
     @Autowired
     StockRepository stockRepository;
 
+    @Autowired
+    StockService stockService;
+
     private void getProductInfo(Item item) {
         rakeToysrusKR(item);
         rakeAmazonUS(item);
@@ -49,7 +52,7 @@ public class RakeService {
          * http://toysrus.lottemart.com/search/search.do?searchTerm=lego+31035
          * http://toysrus.lottemart.com/product/ProductDetail.do?ProductCD=5702015366922
          */
-        Stock stock = new Stock();
+
         Product product = new Product();
         try {
             String itemCode = String.valueOf(item.getItemCode());
@@ -65,51 +68,22 @@ public class RakeService {
             if (matcher.find()) {
                 prdCode = matcher.group().replaceAll("'", "");
                 product.setPrdUrl("http://toysrus.lottemart.com/product/ProductDetail.do?ProductCD=" + prdCode);
-                Document prdDoc = Jsoup.connect(product.getPrdUrl()).get();
 
                 //System.out.println("prdDoc.toString() = " + prdDoc.toString());
-
-                String priceRegex = "itemsCurrSalePrc\\s{0,9}=\\s{0,9}'\\d{1,3},\\d{1,3}'";
-                pattern = Pattern.compile(priceRegex);
-                matcher = pattern.matcher(prdDoc.toString());
-
-                String stockPrice = "";
-                if (matcher.find()) {
-                    stockPrice = matcher.group().replaceAll("itemsCurrSalePrc", "")
-                            .replaceAll("'", "")
-                            .replaceAll("=", "").trim();
-
-                    System.out.println("stockPrice = " + stockPrice);
-                }
-
                 product.setItem(item);
                 product.setSeller(Seller.TOYSRUS_KR);
 
-                //구매가능 수량
-                Element availabilityDom = prdDoc.select(".pd0.limited-price td .point").first();
-
-                if (availabilityDom != null) System.out.println("availabilityDom.text() = " + availabilityDom.text());
-
-                Boolean availability = (availabilityDom != null && Integer.valueOf(availabilityDom.text()) > 0) ? true : false;
-                stock.setAvailability(availability);
-
-                stock.setAvaiable(Integer.valueOf(availabilityDom.text()));
-                stock.setTotal(Integer.valueOf(availabilityDom.nextElementSibling().text()));
-
-                stock.setProduct(product);
-                stock.setCurrency(Stock.Currency.KRW);
-                stock.setPrice(stockPrice);
-
+                //get stock info
                 productRepository.save(product);
-                stockRepository.save(stock);
+                stockService.getStockOfToysrusKR(product);
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
+
+
 
     public void rakeOfficialKR(Item item) {
         Product product = new Product();
